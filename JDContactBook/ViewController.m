@@ -7,23 +7,23 @@
 //
 
 #import "ViewController.h"
+#import "JDContactManager.h"
 
 @interface ViewController ()
-
+@property (nonatomic, strong) JDContactManager *manager;
 @end
 
 @implementation ViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
 }
 
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    _manager = [[JDContactManager alloc] init];
+    [_manager openContactWithController:self completion:^(NSString *name, NSString *phone) {
+        NSLog(@"name->%@, phone->%@", name, phone);
+    }];
 }
-
 
 @end
