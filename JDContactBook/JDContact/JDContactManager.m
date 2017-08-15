@@ -20,6 +20,7 @@
 
 - (void)requestAddressBookAuthorization:(void (^)(BOOL authorization))completion {
     
+    
     if (ABAddressBookGetAuthorizationStatus() == kABAuthorizationStatusNotDetermined) {
         ABAddressBookRef bookRef = ABAddressBookCreate();
         ABAddressBookRequestAccessWithCompletion(bookRef , ^(bool granted, CFErrorRef error) {
@@ -45,14 +46,13 @@
     
     if (ABAddressBookGetAuthorizationStatus() == kABAuthorizationStatusNotDetermined) {
         ABAddressBookRef bookRef = ABAddressBookCreate();
-        ABAddressBookRequestAccessWithCompletion(bookRef , ^(bool granted, CFErrorRef error) {
-            if (granted) {
-                NSLog(@"success");
+        [self requestAddressBookAuthorization:^(BOOL authorization) {
+            if (authorization) {
                 [viewControllerToPresent presentViewController:pvc animated:YES completion:nil];
             } else {
                 NSLog(@"error");
             }
-        });
+        }];
     } else if (ABAddressBookGetAuthorizationStatus() == kABAuthorizationStatusAuthorized) {
         [viewControllerToPresent presentViewController:pvc animated:YES completion:nil];
     }
@@ -60,10 +60,12 @@
 
 #pragma mark - private
 
-
-
 #pragma mark - lazy 
 - (JDContactDelegate *)contactDelegate {
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"Info" ofType:@"plist"];
+    NSDictionary *dict = [NSDictionary dictionaryWithContentsOfFile:path];
+    NSString *str = [dict objectForKey:@"NSContactsUsageDescription"];
+    NSAssert(str.length > 0 , @"This app has crashed because it attempted to access privacy-sensitive data without a usage description.  The app's Info.plist must contain an NSContactsUsageDescription key with a string value explaining to the user how the app uses this data.");
     if (_contactDelegate == nil) {
         _contactDelegate = [[JDContactDelegate alloc] init];
         __weak typeof(self) weakSelf = self;
